@@ -1,0 +1,23 @@
+/*
+ * Flash.h
+ *
+ *  Created on: Mar 19, 2025
+ *      Author: Thaweechock.M
+ */
+
+#ifndef INC_FLASH_H_
+#define INC_FLASH_H_
+
+#include "main.h"
+
+#define FLASH_USER_ADDRESS  ((uint32_t)0x0800F800)
+#define FLASH_DATA_SIZE 3
+
+void Flash_ErasePage(uint32_t address);
+void Flash_WriteArray(uint32_t address, uint32_t *data, uint32_t length);
+void Flash_ReadArray(uint32_t address, uint32_t *data, uint32_t length);
+
+void SaveSensorData(uint32_t *sensor_values);
+void LoadSensorData(uint32_t *sensor_values);
+
+#endif /* INC_FLASH_H_ */

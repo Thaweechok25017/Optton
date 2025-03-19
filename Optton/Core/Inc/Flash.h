@@ -1,0 +1,20 @@
+/*
+ * Flash.h
+ *
+ *  Created on: Mar 19, 2025
+ *      Author: Thaweechock.M
+ */
+
+#ifndef FLASH_H
+#define FLASH_H
+
+#include "main.h"
+
+#define FLASH_STORAGE_ADDRESS  0x0801F800  // ตำแหน่ง Flash ที่ใช้บันทึก Pattern
+#define MAX_PATTERN 12  // เก็บ Pattern ได้สูงสุด 12 ขั้นตอน
+
+void Flash_ErasePage(uint32_t address);
+void Flash_WriteArray(uint32_t address, uint32_t *data, uint32_t length);
+void Flash_ReadArray(uint32_t address, uint32_t *data, uint32_t length);
+
+#endif

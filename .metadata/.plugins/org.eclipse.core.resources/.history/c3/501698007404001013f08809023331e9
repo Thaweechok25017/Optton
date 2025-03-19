@@ -1,0 +1,59 @@
+/*
+ * Flash.c
+ *
+ *  Created on: Mar 19, 2025
+ *      Author: Thaweechock.M
+ */
+#include "Flash.h"
+
+void Flash_ErasePage(uint32_t address) {
+    HAL_FLASH_Unlock();
+
+    FLASH_EraseInitTypeDef EraseInitStruct;
+    uint32_t PageError = 0;
+
+    EraseInitStruct.TypeErase = FLASH_TYPEERASE_PAGES;
+    EraseInitStruct.Page = (address - FLASH_BASE) / FLASH_PAGE_SIZE;  // คำนวณหมายเลข Page
+    EraseInitStruct.Banks = FLASH_BANK_1;
+    EraseInitStruct.NbPages = 1;
+
+    if (HAL_FLASHEx_Erase(&EraseInitStruct, &PageError) != HAL_OK) {
+        // จัดการข้อผิดพลาดในการลบแฟลช
+    }
+
+    HAL_FLASH_Lock();
+}
+
+void Flash_WriteArray(uint32_t address, uint32_t *data, uint32_t length) {
+    Flash_ErasePage(address);  // ต้องลบก่อนเขียนใหม่
+
+    HAL_FLASH_Unlock();
+
+    for (uint32_t i = 0; i < length; i += 2) {
+        // รวม 32-bit data[i] และ data[i+1] เป็น 64-bit
+        uint64_t data64 = ((uint64_t)data[i + 1] << 32) | data[i];
+
+        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, address + (i * 4), data64) != HAL_OK) {
+            // จัดการข้อผิดพลาดในการเขียนแฟลช
+            break;
+        }
+    }
+
+    HAL_FLASH_Lock();
+}
+
+void Flash_ReadArray(uint32_t address, uint32_t *data, uint32_t length) {
+    for (uint32_t i = 0; i < length; i++) {
+        data[i] = *(uint32_t *)(address + (i * 4));  // อ่านค่าทีละ 32-bit
+    }
+}
+void SaveSensorData(uint32_t *sensor_values) {
+        Flash_WriteArray(FLASH_SENSOR_ADDRESS, sensor_values, SENSOR_DATA_SIZE);
+    }
+
+    // โหลดค่าที่บันทึกไว้จาก Flash
+void LoadSensorData(uint32_t *sensor_values) {
+        Flash_ReadArray(FLASH_SENSOR_ADDRESS, sensor_values, SENSOR_DATA_SIZE);
+    }
+
+

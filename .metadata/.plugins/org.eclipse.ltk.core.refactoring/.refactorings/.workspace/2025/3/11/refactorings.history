@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Delete resource &apos;Optton/Core/Inc/Write_data&apos;" deleteContents="false" description="Delete resource &apos;Optton/Core/Inc/Write_data&apos;" element1="/Optton/Core/Inc/Write_data" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1741838460624"/>
+</session>

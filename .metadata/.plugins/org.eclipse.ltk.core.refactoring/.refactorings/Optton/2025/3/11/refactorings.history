@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;Optton/Core/Inc/Write_Data&apos; to &apos;Write_Data.h&apos;" description="Rename resource &apos;Write_Data&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="Core/Inc/Write_Data" name="Write_Data.h" stamp="1741854639897" updateReferences="true"/>
+</session>

@@ -1,0 +1,19 @@
+/*
+ * Sensor.c
+ *
+ *  Created on: Mar 17, 2025
+ *      Author: Thaweechock.M
+ */
+#include "Sensor.h"
+
+bool ReadOpttonValue(uint16_t sensor) {
+	if (sensor == 1) {
+		return HAL_GPIO_ReadPin(OP1_GPIO_Port, OP1_Pin);
+	} else if (sensor == 2) {
+		return HAL_GPIO_ReadPin(OP2_GPIO_Port, OP2_Pin);
+	} else if (sensor == 3) {
+		return HAL_GPIO_ReadPin(OP3_GPIO_Port, OP3_Pin);
+	}
+
+	return false; // Return false if the sensor number is invalid
+}

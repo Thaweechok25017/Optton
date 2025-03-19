@@ -1,0 +1,16 @@
+/*
+ * Pattern.h
+ *
+ *  Created on: Mar 18, 2025
+ *      Author: Thaweechock.M
+ */
+
+#ifndef INC_PATTERN_H_
+#define INC_PATTERN_H_
+
+#include "main.h"
+#include "Sensor.h"
+
+void CheckSwitchPattern(void);
+
+#endif /* INC_PATTERN_H_ */

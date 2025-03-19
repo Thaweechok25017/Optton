@@ -1,0 +1,19 @@
+/*
+ * Sensor.h
+ *
+ *  Created on: Mar 17, 2025
+ *      Author: Thaweechock.M
+ */
+
+#ifndef INC_SENSOR_H_
+#define INC_SENSOR_H_
+
+#include "main.h"
+#include "stdbool.h"
+
+bool ReadOpttonValue(uint8_t sensor);
+
+#endif
+
+
+#endif /* INC_SENSOR_H_ */

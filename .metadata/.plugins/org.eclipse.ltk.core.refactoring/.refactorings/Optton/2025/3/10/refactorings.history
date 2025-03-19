@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;Optton/Core/Inc/State_Pattern&apos; to &apos;State_Pattern.h&apos;" description="Rename resource &apos;State_Pattern&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="Core/Inc/State_Pattern" name="State_Pattern.h" stamp="1741330011348" updateReferences="true"/>
+</session>
