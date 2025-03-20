@@ -5,7 +5,6 @@
  *      Author: Thaweechock.M
  */
 #include "main.h"
-#include "flash.h"
 
 uint32_t pattern_open[MAX_PATTERN] = {1, 2, 3};  // ค่าเริ่มต้น Pattern เปิด
 uint32_t pattern_close[MAX_PATTERN] = {3, 2, 1}; // ค่าเริ่มต้น Pattern ปิด
@@ -32,8 +31,8 @@ void ProcessButtonPress(uint8_t button) {
         pattern_open[pattern_index++] = button;
         if (pattern_index >= 3) {
             SavePatternsToFlash();
-        	HAL_GPIO_WritePin(GPIOB, LED_on_Pin, GPIO_PIN_SET);
-        	HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(GPIOB, LED_on_Pin, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin, GPIO_PIN_SET);
             HAL_Delay(300);
             HAL_GPIO_WritePin(GPIOB, LED_on_Pin, GPIO_PIN_RESET);
             HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin, GPIO_PIN_RESET);
@@ -56,8 +55,8 @@ void ProcessButtonPress(uint8_t button) {
             if (button == pattern_open[pattern_index]) {
                 pattern_index++;
                 if (pattern_index == 3) {
-                	HAL_GPIO_WritePin(GPIOB, LED_on_Pin, GPIO_PIN_SET);
-                	HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin, GPIO_PIN_SET);
+                    HAL_GPIO_WritePin(GPIOB, LED_on_Pin, GPIO_PIN_SET);
+                    HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin, GPIO_PIN_SET);
 
                     HAL_GPIO_WritePin(GPIOC, LED_off_Pin, GPIO_PIN_RESET);
                     HAL_GPIO_WritePin(GPIOC, LED_offC15_Pin, GPIO_PIN_RESET);
@@ -72,34 +71,50 @@ void ProcessButtonPress(uint8_t button) {
                     HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin, GPIO_PIN_RESET);
                 }
             } else {
-                pattern_index = 0;
+                pattern_index = 0;  // รีเซ็ต index หากปุ่มที่กดไม่ตรงกับ pattern
             }
         }
     }
 }
 
 void CheckButtonPress() {
-    static uint32_t last_press_time = 0;
-    static uint8_t hold_count = 0;
+    static uint32_t last_press_time = 0;  // เวลาที่บันทึกการกดปุ่มครั้งล่าสุด
+    static uint8_t hold_count = 0;  // ตัวนับการกดปุ่มต่อเนื่อง
 
-    if (HAL_GPIO_ReadPin(GPIOA, OP1_PIN) == GPIO_PIN_SET && HAL_GPIO_ReadPin(GPIOA, OP3_PIN) == GPIO_PIN_SET) {
-        hold_count++;
-        if (hold_count >= 50) {
-            setting_mode = 1;
-        	HAL_GPIO_WritePin(GPIOB, LED_on_Pin, GPIO_PIN_SET);
-        	HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin, GPIO_PIN_SET);
-            HAL_Delay(300);
-        	HAL_GPIO_WritePin(GPIOB, LED_on_Pin, GPIO_PIN_RESET);
-        	HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin, GPIO_PIN_RESET);
-            hold_count = 0;
+    uint32_t current_time = HAL_GetTick();  // เวลาในหน่วยมิลลิวินาที
+
+    // ตรวจสอบว่าเวลาแยกกันมากพอสมควร (เช่น 200 ms) ก่อนจะทำการอ่านสถานะปุ่ม
+    if (current_time - last_press_time > 200) {
+        if (HAL_GPIO_ReadPin(GPIOA, OP1_PIN) == GPIO_PIN_SET && HAL_GPIO_ReadPin(GPIOA, OP3_PIN) == GPIO_PIN_SET) {
+            hold_count++;
+            if (hold_count >= 50) {
+                setting_mode = 1;
+                HAL_GPIO_WritePin(GPIOB, LED_on_Pin, GPIO_PIN_SET);
+                HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin, GPIO_PIN_SET);
+                HAL_Delay(300);
+                HAL_GPIO_WritePin(GPIOB, LED_on_Pin, GPIO_PIN_RESET);
+                HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin, GPIO_PIN_RESET);
+                hold_count = 0;
+            }
+        } else {
+            hold_count = 0;  // รีเซ็ตตัวนับเมื่อปุ่มไม่ได้กด
         }
-    } else {
-        hold_count = 0;
-    }
 
-    if (HAL_GPIO_ReadPin(GPIOA, OP1_PIN) == GPIO_PIN_SET) ProcessButtonPress(1);
-    if (HAL_GPIO_ReadPin(GPIOA, OP2_PIN) == GPIO_PIN_SET) ProcessButtonPress(2);
-    if (HAL_GPIO_ReadPin(GPIOA, OP3_PIN) == GPIO_PIN_SET) ProcessButtonPress(3);
+        // ตรวจสอบปุ่มที่กดเพื่อทำการประมวลผล
+        if (HAL_GPIO_ReadPin(GPIOA, OP1_PIN) == GPIO_PIN_SET) {
+            ProcessButtonPress(1);
+        }
+        if (HAL_GPIO_ReadPin(GPIOA, OP2_PIN) == GPIO_PIN_SET) {
+            ProcessButtonPress(2);
+        }
+        if (HAL_GPIO_ReadPin(GPIOA, OP3_PIN) == GPIO_PIN_SET) {
+            ProcessButtonPress(3);
+        }
+
+        // อัปเดตเวลาการกดปุ่มล่าสุด
+        last_press_time = current_time;
+    }
 }
+
 
 
