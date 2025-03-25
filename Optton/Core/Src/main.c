@@ -18,9 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "Sensor.h"
 #include "Write_data.h"
-#include "Flash.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -190,14 +188,6 @@ static void MX_SPI1_Init(void);
   */
 int main(void)
 {
-
-HAL_Init();  // เริ่มต้น HAL Library
-GPIO_Init(); // เริ่มต้นการตั้งค่า PA7
-
-Write_data(IODIRA, 0b00000000);
-Write_data(IODIRA, 0b11111100);
-
-
 /* USER CODE END 1 */
 
   /* MCU Configuration---------------------------------------------------------*/
@@ -227,26 +217,7 @@ Write_data(IODIRA, 0b11111100);
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-      uint8_t op1 = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8);
-      uint8_t op2 = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_15);
-      uint8_t op3 = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_12);
 
-      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1 | GPIO_PIN_0, op1);
-      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6 | GPIO_PIN_5, op2);
-      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4 | GPIO_PIN_3, op3);
-
-      if (op1 && op2 && op3) {
-          MCP23S17_WriteGPIOA(0x03);  // Set GPIOA0, GPIOA1 HIGH
-          MCP23S17_WriteGPIOA(0x0C);  // Set GPIOA2, GPIOA3 HIGH
-      }
-
-      if (HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN) == GPIO_PIN_SET) {
-          // หากกดปุ่ม ให้เปลี่ยนค่าของ IODIRA
-          MCP23S17_Write(IODIRA, 0b00000011);  // กำหนดทิศทางเป็น Output
-      } else {
-          // หากไม่กดปุ่ม ให้กลับไปเป็นทิศทางเดิม
-          MCP23S17_Write(IODIRA, 0b00000011);  // การตั้งค่า IODIRA ตามต้องการ
-      }
   }
   /* USER CODE END 3 */
 }

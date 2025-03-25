@@ -1,0 +1,45 @@
+/*
+ * Sensor.c
+ *
+ *  Created on: Mar 24, 2025
+ *      Author: Thaweechock.M
+ */
+
+#include "Sensor.h"
+
+uint32_t pressStartTime = 0;
+uint32_t debounceTime = 1000;
+
+void ReadS(){
+	    Sensor[0] = HAL_GPIO_ReadPin(GPIOC, OP1_Pin) ? 1 : 0;
+	    Sensor[1] = HAL_GPIO_ReadPin(GPIOC, OP2_Pin) ? 1 : 0;
+	    Sensor[2] = HAL_GPIO_ReadPin(GPIOC, OP3_Pin) ? 1 : 0;
+}
+
+void Press() {
+    for (int t = 0; t < 3; t++) {
+        if (Sensor[t] == 1) {  // ถ้าปุ่มที่ i ถูกกด
+            if (pressStartTime[t] == 0) {
+                pressStartTime[t] = HAL_GetTick();
+            }
+            // ตรวจสอบเวลาที่ผ่านไปหลังจากการกด
+            if (HAL_GetTick() - pressStartTime[t] >= debounceTime) {
+                // หากเวลาผ่านไปครบที่กำหนด (1 วินาที)
+                switch (t) {
+                    case 0:
+                        HAL_GPIO_WritePin(GPIOC, LED_1_Pin, GPIO_PIN_RESET);  // LED_1 ดับ
+                        break;
+                    case 1:
+                        HAL_GPIO_WritePin(GPIOC, LED_2_Pin, GPIO_PIN_RESET);  // LED_2 ดับ
+                        break;
+                    case 2:
+                        HAL_GPIO_WritePin(GPIOC, LED_3_Pin, GPIO_PIN_RESET);  // LED_3 ดับ
+                        break;
+                }
+                pressStartTime[t] = 0;  // รีเซ็ตเวลา
+            }
+        } else {
+            pressStartTime[t] = 0;  // รีเซ็ตเวลาเมื่อไม่ได้กดปุ่ม
+        }
+    }
+}

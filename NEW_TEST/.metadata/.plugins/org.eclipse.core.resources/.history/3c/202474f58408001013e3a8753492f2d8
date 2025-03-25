@@ -1,0 +1,25 @@
+/*
+ * LED.c
+ *
+ *  Created on: Mar 24, 2025
+ *      Author: Thaweechock.M
+ */
+
+#include "LED.h"
+
+void LED_Status(uint8_t num1, uint8_t num2, uint8_t num3) {
+    HAL_GPIO_WritePin(GPIOC, LED_1_Pin, num1 ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, LED_2_Pin, num2 ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, LED_3_Pin, num3 ? GPIO_PIN_SET : GPIO_PIN_RESET);
+}
+
+void BlinkLED(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, uint8_t times, uint32_t delay_ms) {
+    for (uint8_t i = 0; i < times; i++) {
+        HAL_GPIO_WritePin(GPIOx, GPIO_Pin, GPIO_PIN_SET);
+        HAL_Delay(delay_ms);
+        HAL_GPIO_WritePin(GPIOx, GPIO_Pin, GPIO_PIN_RESET);
+        HAL_Delay(delay_ms);
+    }
+}
+
+

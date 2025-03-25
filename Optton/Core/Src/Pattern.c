@@ -6,10 +6,10 @@
  */
 #include "main.h"
 
-uint32_t pattern_open[MAX_PATTERN] = {1, 2, 3};  // ค่าเริ่มต้น Pattern เปิด
-uint32_t pattern_close[MAX_PATTERN] = {3, 2, 1}; // ค่าเริ่มต้น Pattern ปิด
+uint32_t pattern_open[MAX_PATTERN] = {1, 2, 3};
+uint32_t pattern_close[MAX_PATTERN] = {3, 2, 1};
 uint8_t pattern_index = 0;
-uint8_t setting_mode = 0;  // 0 = ปกติ, 1 = ตั้งค่า Open, 2 = ตั้งค่า Close
+uint8_t setting_mode = 0;
 
 void LoadPatternsFromFlash() {
     Flash_ReadArray(FLASH_STORAGE_ADDRESS, pattern_open, MAX_PATTERN);
@@ -56,38 +56,32 @@ void ProcessButtonPress(uint8_t button) {
                 pattern_index++;
                 if (pattern_index == 3) {
                     HAL_GPIO_WritePin(GPIOB, LED_on_Pin, GPIO_PIN_SET);
-                    HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin, GPIO_PIN_SET);
 
                     HAL_GPIO_WritePin(GPIOC, LED_off_Pin, GPIO_PIN_RESET);
-                    HAL_GPIO_WritePin(GPIOC, LED_offC15_Pin, GPIO_PIN_RESET);
                 }
             } else if (button == pattern_close[pattern_index]) {
                 pattern_index++;
                 if (pattern_index == 3) {
                     HAL_GPIO_WritePin(GPIOC, LED_off_Pin, GPIO_PIN_SET);
-                    HAL_GPIO_WritePin(GPIOC, LED_offC15_Pin, GPIO_PIN_SET);
 
                     HAL_GPIO_WritePin(GPIOB, LED_on_Pin, GPIO_PIN_RESET);
-                    HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin, GPIO_PIN_RESET);
                 }
             } else {
-                pattern_index = 0;  // รีเซ็ต index หากปุ่มที่กดไม่ตรงกับ pattern
+                pattern_index = 0;
             }
         }
     }
 }
 
 void CheckButtonPress() {
-    static uint32_t last_press_time = 0;  // เวลาที่บันทึกการกดปุ่มครั้งล่าสุด
-    static uint8_t hold_count = 0;  // ตัวนับการกดปุ่มต่อเนื่อง
+    static uint32_t last_press_time = 0;
+    static uint8_t hold_count = 0;
 
-    uint32_t current_time = HAL_GetTick();  // เวลาในหน่วยมิลลิวินาที
-
-    // ตรวจสอบว่าเวลาแยกกันมากพอสมควร (เช่น 200 ms) ก่อนจะทำการอ่านสถานะปุ่ม
-    if (current_time - last_press_time > 200) {
+    uint32_t current_time = HAL_GetTick();
+    if (current_time - last_press_time > 1000) {
         if (HAL_GPIO_ReadPin(GPIOA, OP1_PIN) == GPIO_PIN_SET && HAL_GPIO_ReadPin(GPIOA, OP3_PIN) == GPIO_PIN_SET) {
             hold_count++;
-            if (hold_count >= 50) {
+            if (hold_count >= 5000) {
                 setting_mode = 1;
                 HAL_GPIO_WritePin(GPIOB, LED_on_Pin, GPIO_PIN_SET);
                 HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin, GPIO_PIN_SET);
@@ -97,10 +91,8 @@ void CheckButtonPress() {
                 hold_count = 0;
             }
         } else {
-            hold_count = 0;  // รีเซ็ตตัวนับเมื่อปุ่มไม่ได้กด
+            hold_count = 0;
         }
-
-        // ตรวจสอบปุ่มที่กดเพื่อทำการประมวลผล
         if (HAL_GPIO_ReadPin(GPIOA, OP1_PIN) == GPIO_PIN_SET) {
             ProcessButtonPress(1);
         }
@@ -111,7 +103,6 @@ void CheckButtonPress() {
             ProcessButtonPress(3);
         }
 
-        // อัปเดตเวลาการกดปุ่มล่าสุด
         last_press_time = current_time;
     }
 }

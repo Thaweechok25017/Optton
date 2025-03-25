@@ -1,0 +1,15 @@
+/*
+ * RPattern.h
+ *
+ *  Created on: Mar 24, 2025
+ *      Author: Thaweechock.M
+ */
+
+#ifndef INC_RPATTERN_H_
+#define INC_RPATTERN_H_
+
+#include "stm32l4xx_hal.h"
+
+void GeneratePattern(int output[i][j]);
+
+#endif /* INC_RPATTERN_H_ */

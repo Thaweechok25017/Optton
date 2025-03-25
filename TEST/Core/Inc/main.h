@@ -61,6 +61,12 @@ void Error_Handler(void);
 #define B1_GPIO_Port GPIOC
 #define MCO_Pin GPIO_PIN_0
 #define MCO_GPIO_Port GPIOH
+#define OP1_Pin GPIO_PIN_0
+#define OP1_GPIO_Port GPIOC
+#define OP2_Pin GPIO_PIN_1
+#define OP2_GPIO_Port GPIOC
+#define OP3_Pin GPIO_PIN_2
+#define OP3_GPIO_Port GPIOC
 #define USART_TX_Pin GPIO_PIN_2
 #define USART_TX_GPIO_Port GPIOA
 #define USART_RX_Pin GPIO_PIN_3
@@ -75,10 +81,20 @@ void Error_Handler(void);
 #define SMPS_SW_GPIO_Port GPIOA
 #define LD4_Pin GPIO_PIN_13
 #define LD4_GPIO_Port GPIOB
+#define LED_on_Pin GPIO_PIN_8
+#define LED_on_GPIO_Port GPIOC
+#define LED_off_Pin GPIO_PIN_9
+#define LED_off_GPIO_Port GPIOC
 #define TMS_Pin GPIO_PIN_13
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
 #define TCK_GPIO_Port GPIOA
+#define LED_1_Pin GPIO_PIN_10
+#define LED_1_GPIO_Port GPIOC
+#define LED_2_Pin GPIO_PIN_11
+#define LED_2_GPIO_Port GPIOC
+#define LED_3_Pin GPIO_PIN_12
+#define LED_3_GPIO_Port GPIOC
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
 
