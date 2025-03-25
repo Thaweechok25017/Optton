@@ -1,0 +1,22 @@
+/*
+ * RPattern.c
+ *
+ *  Created on: Mar 24, 2025
+ *      Author: Thaweechock.M
+ */
+
+#include "RPattern.h"
+
+void GeneratePattern(uint32_t patterns[i][0], int patterns[i][1] int patterns[i][2]) {
+    int patterns[12][3] = {
+        {1, 2, 1}, {1, 2, 3}, {1, 3, 1}, {1, 3, 2},
+        {2, 1, 2}, {2, 1, 3}, {2, 3, 1}, {2, 3, 2},
+        {3, 1, 2}, {3, 1, 3}, {3, 2, 1}, {3, 2, 3}
+    };
+
+    for (int i = 0; i < 12; i++) {
+        printf("S-%d-%d-%d\n", patterns[i][0], patterns[i][1], patterns[i][2]);
+    }
+    return patterns[i][0], patterns[i][1], patterns[i][2];
+}
+

@@ -60,8 +60,8 @@ all: main-build
 main-build: Optton.elf secondary-outputs
 
 # Tool invocations
-Optton.elf Optton.map: $(OBJS) $(USER_OBJS) D:\(TMC)\File_Job\Optton_V2\Optton\STM32G071G8UX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "Optton.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0plus -T"D:\(TMC)\File_Job\Optton_V2\Optton\STM32G071G8UX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Optton.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Optton.elf Optton.map: $(OBJS) $(USER_OBJS) C:\Users\thaweechock.m\Optton_V2\Optton\STM32G071G8UX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "Optton.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0plus -T"C:\Users\thaweechock.m\Optton_V2\Optton\STM32G071G8UX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Optton.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
