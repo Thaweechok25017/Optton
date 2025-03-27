@@ -18,7 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include "TT.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -59,7 +59,6 @@ static void MX_SPI1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
 /* USER CODE END 0 */
 
 /**
@@ -94,7 +93,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
-
+  WaitForStart();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -102,7 +101,8 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+	  WaitForStart();
+	  CheckInput();
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

@@ -18,136 +18,11 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "Write_data.h"
+#include "TT.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
-
-#define IODIRA 0x00 // MCP23S17 PORT A Output
-#define GPIOA  0x12 // SETOUTPUT in Port A MCP
-#define OLATA  0x14 // Latched GPA
-
-uint8_t Sensor[3] = {0};
-uint8_t LedPattern[3] = {0};
-int prevSensor[3] = {0, 0, 0};
-uint8_t PatternIndex = 0;
-
-uint8_t ReData[3] = 0;
-
-uint8_t Holdtime = 0;
-
-uint32_t RelTime = 0;
-uint32_t PreTime = 0;
-
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-void Write_data(uint8_t reg, uint8_t Value) {
-    HAL_GPIO_WritePin(GPIOA, CS_Pin, GPIO_PIN_RESET);
-    uint8_t data[4] = {MCP_ADDR, 0x00, reg, Value};
-    if (HAL_SPI_Transmit(&hspi1, data, 4, 1000) != HAL_OK) {
-        Error_Handler();
-    }
-    HAL_GPIO_WritePin(GPIOA, CS_Pin, GPIO_PIN_SET);
-}
-
-void ReadSensor(void) {
-	Sensor[0] = (HAL_GPIO_ReadPin(GPIOA, OP1_Pin) == GPIO_PIN_SET) ? 1 : 0;
-	Sensor[1] = (HAL_GPIO_ReadPin(GPIOA, OP2_Pin) == GPIO_PIN_SET) ? 1 : 0;
-	Sensor[2] = (HAL_GPIO_ReadPin(GPIOA, OP3_Pin) == GPIO_PIN_SET) ? 1 : 0;
-}
-
-void Update_Sensor(void){
-
-}
-
-void LED_Blink(void){
-	if(Sensor[0] == 0 && Sensor[1] == 0 && Sensor[2] == 0){PatternIndex = 0;}
-	if(Sensor[0] == 1 ){HAL_GPIO_WritePin(GPIOB, LED_1_Pin,GPIO_PIN_SET); HAL_GPIO_WritePin(GPIOB, LED_1B1_Pin,GPIO_PIN_SET); PatternIndex |= (1 << 0);}
-		else{HAL_GPIO_WritePin(GPIOB, LED_1_Pin,GPIO_PIN_RESET); HAL_GPIO_WritePin(GPIOB, LED_1B1_Pin,GPIO_PIN_RESET);}
-	if(Sensor[1] == 1 ){HAL_GPIO_WritePin(GPIOB, LED_2_Pin,GPIO_PIN_SET); HAL_GPIO_WritePin(GPIOB, LED_2B6_Pin,GPIO_PIN_SET); PatternIndex |= (1 << 1);}
-		else{HAL_GPIO_WritePin(GPIOB, LED_2_Pin,GPIO_PIN_RESET); HAL_GPIO_WritePin(GPIOB, LED_2B6_Pin,GPIO_PIN_RESET);}
-	if(Sensor[2] == 1 ){HAL_GPIO_WritePin(GPIOB, LED_3_Pin,GPIO_PIN_SET); HAL_GPIO_WritePin(GPIOB, LED_3B4_Pin,GPIO_PIN_SET); PatternIndex |= (1 << 2);}
-		else{HAL_GPIO_WritePin(GPIOB, LED_3_Pin,GPIO_PIN_RESET); HAL_GPIO_WritePin(GPIOB, LED_3B4_Pin,GPIO_PIN_RESET);}
-
-	for (int i = 0; i < 3; i++) {prevSensor[i] = Sensor[i];}
-}
-// 0b110
-void GeneratePattern(void) {
-
-    int s1 = (PatternIndex >> 0) & 0x01;
-    int s2 = (PatternIndex >> 1) & 0x01;
-    int s3 = (PatternIndex >> 2) & 0x01;
-
-    for (int i = 1; i <= 3; i++) {
-        for (int j = 1; j <= 3; j++) {
-            for (int k = 1; k <= 3; k++) {
-            	if(s1 == 1){
-            		printf("S-%d-%d-%d\n", i, j, k);
-            	}
-            	if(s2 == 1){
-            		printf("S-%d-%d-%d\n", i, j, k);
-            	}
-            	if(s3 == 1){
-            		printf("S-%d-%d-%d\n", i, j, k);
-            	}
-            }
-        }
-    }
-}
-
-void Default(void){
-	if(prevSensor[0] == 0b001 && prevSensor[1] == 0b010 && prevSensor[2] == 0b100){
-		HAL_GPIO_WritePin(GPIOB, LED_on_Pin,GPIO_PIN_SET);
-		HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin,GPIO_PIN_SET);
-	}
-	else if(prevSensor[0] == 0b100 && prevSensor[1] == 0b010 && prevSensor[2] == 0b001){
-		HAL_GPIO_WritePin(GPIOB, LED_on_Pin,GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin,GPIO_PIN_RESET);
-
-		HAL_GPIO_WritePin(GPIOB, LED_off_Pin,GPIO_PIN_SET);
-		HAL_GPIO_WritePin(GPIOB, LED_offC15_Pin,GPIO_PIN_SET);
-	}
-	else{
-		HAL_GPIO_WritePin(GPIOB, LED_off_Pin,GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOB, LED_offC15_Pin,GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOB, LED_on_Pin,GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin,GPIO_PIN_RESET);
-	}
-}
-
-void Modified(void){
-	if ((Sensor[0] == 1) && (Sensor[2] == 1)){
-		PreTime = HAL_GetTick();
-		Holdtime = 1;
-
-		if(Holdtime == 1){
-			if((HAL_GetTick() - PreTime) >= 5000){
-				Holdtime = 2;
-				if(Holdtime == 2){
-					for(int i = 0;i < 3;i++){
-						prevSensor[i] = 0;
-					}
-						HAL_GPIO_WritePin(GPIOB, LED_off_Pin,GPIO_PIN_RESET);
-						HAL_GPIO_WritePin(GPIOB, LED_offC15_Pin,GPIO_PIN_RESET);
-						HAL_GPIO_WritePin(GPIOB, LED_on_Pin,GPIO_PIN_RESET);
-						HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin,GPIO_PIN_RESET);
-
-						ReadSensor();
-
-						ReData[0] = Sensor[0];
-						ReData[1] = Sensor[1];
-						ReData[2] = Sensor[2];
-						Holdtime = 0;
-				}
-			}
-		}
-	}
-		else{
-			if(Holdtime == 1){PreTime = HAL_GetTick(); Holdtime = 0;}
-	}
-}
-
 
 /* USER CODE END PTD */
 
@@ -163,7 +38,7 @@ void Modified(void){
 
 /* Private variables ---------------------------------------------------------*/
 
-extern SPI_HandleTypeDef hspi1;
+SPI_HandleTypeDef hspi1;
 
 /* USER CODE BEGIN PV */
 
@@ -188,6 +63,8 @@ static void MX_SPI1_Init(void);
   */
 int main(void)
 {
+
+
 /* USER CODE END 1 */
 
   /* MCU Configuration---------------------------------------------------------*/
@@ -209,15 +86,15 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_SPI1_Init();
+  MCP23S17_Init();
   /* USER CODE BEGIN 2 */
-
   /* USER CODE END 2 */
-
+  WaitForStart();
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-
+	  ProcessPattern();
   }
   /* USER CODE END 3 */
 }
@@ -281,17 +158,17 @@ static void MX_SPI1_Init(void)
   hspi1.Instance = SPI1;
   hspi1.Init.Mode = SPI_MODE_MASTER;
   hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_4BIT;
+  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
   hspi1.Init.CRCPolynomial = 7;
   hspi1.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
-  hspi1.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
+  hspi1.Init.NSSPMode = SPI_NSS_PULSE_DISABLE;
   if (HAL_SPI_Init(&hspi1) != HAL_OK)
   {
     Error_Handler();
@@ -323,7 +200,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOC, LED_off_Pin|LED_offC15_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, LED_1_Pin|LED_1B1_Pin|LED_3_Pin|LED_3B4_Pin
@@ -365,6 +242,10 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
+  GPIO_InitStruct.Pin = GPIO_PIN_10 | GPIO_PIN_12;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;     // กำหนดให้เป็น Input
+  GPIO_InitStruct.Pull = GPIO_NOPULL;         // ตั้งค่าเป็น Pull-up (ถ้าต้องการ)
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 /* USER CODE END MX_GPIO_Init_2 */
 }
 
