@@ -26,5 +26,6 @@ void MCP23S17_Init();
 void TurnOffLightB();
 void TurnOnLightB();
 void MCP23S17_Init();
+void Send_data();
 
 #endif /* TT_H */
