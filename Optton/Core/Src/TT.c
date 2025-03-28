@@ -8,16 +8,27 @@
 #include "TT.h"
 #include "main.h"
 
+uint8_t data[3];
 int pattern[3];
-int step,started,round_flag = 0;
+int step,started,round_flag,pattern_count = 0;
 
-#define IODIRB     0x01
-#define GPIOMCPB    0x13
-#define MCP23S17_ADDR 0x40
+int MCP23S17_ADDR = 0x40;
+
+int IODIRB = 0x01;
+int IODIRA = 0x00;
+
+int GPIOMCPB = 0x13;
+int GPIOMCPA = 0x12;
+
+int OLATB = 0x15;
+int OLATA = 0x14;
+
 
 extern SPI_HandleTypeDef hspi1;
+extern uint8_t data[3];
 
 void WaitForStart() {
+	MCP23S17_Init();
     uint32_t start_time = 0;
     HAL_GPIO_WritePin(GPIOB, LED_on_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin, GPIO_PIN_RESET);
@@ -81,8 +92,6 @@ void TurnOffAllLEDs(int delay) {
 }
 
 void ProcessPattern() {
-    static int pattern_count = 0;
-    MCP23S17_Write(IODIRB, 0x00);
 
     if (started == 1) {
         TurnOffAllLEDs(1000);
@@ -92,33 +101,28 @@ void ProcessPattern() {
             while (!ReadButton(GPIOA, (pattern[i] == 1 ? OP1_Pin : pattern[i] == 2 ? OP2_Pin : OP3_Pin)));
             LED_Status(pattern[i], 0);
         }
-
         pattern_count = 1;
-
+        Send_data();
         HAL_GPIO_WritePin(GPIOB, LED_on_Pin, GPIO_PIN_SET);
         HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin, GPIO_PIN_SET);
         HAL_GPIO_WritePin(GPIOC, LED_off_Pin, GPIO_PIN_RESET);
         HAL_GPIO_WritePin(GPIOC, LED_offC15_Pin, GPIO_PIN_RESET);
-        MCP23S17_Write(GPIOMCPB, pattern_count ? 0b11111111 : 0b00000000);
-
-        TurnOffAllLEDs(2000);
+        TurnOffAllLEDs(1500);
 
         for (int i = 0; i < 3; i++) {
             LED_Status(pattern[i], 1);
             while (!ReadButton(GPIOA, (pattern[i] == 1 ? OP1_Pin : pattern[i] == 2 ? OP2_Pin : OP3_Pin)));
             LED_Status(pattern[i], 0);
         }
-
         pattern_count = 0;
-
+        Send_data();
         HAL_GPIO_WritePin(GPIOB, LED_on_Pin, GPIO_PIN_RESET);
         HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin, GPIO_PIN_RESET);
         HAL_GPIO_WritePin(GPIOC, LED_off_Pin, GPIO_PIN_SET);
         HAL_GPIO_WritePin(GPIOC, LED_offC15_Pin, GPIO_PIN_SET);
-        MCP23S17_Write(GPIOMCPB, pattern_count ? 0b11111111 : 00000000);
-
-        TurnOffAllLEDs(2000);
+        TurnOffAllLEDs(1500);
         started = 0;
+        WaitForStart();
 
         if (pattern_count == 0) {
             WaitForStart();
@@ -140,14 +144,39 @@ uint8_t ReadButton(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin) {
 }
 
 void MCP23S17_Write(uint8_t reg, uint8_t value) {
-    HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_RESET); // CS LOW
-    uint8_t data[3] = {MCP23S17_ADDR | 0x00, reg, value};
+
+    data[0] = MCP23S17_ADDR;
+    data[1] = reg;
+    data[2] = value;
+
+    HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_RESET);
     HAL_SPI_Transmit(&hspi1, data, 3, HAL_MAX_DELAY);
-    HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_SET); // CS HIGH
+    HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_SET);
 }
 
 void MCP23S17_Init() {
-    HAL_Delay(100);
-    MCP23S17_Write(IODIRB, 0x00);
+	HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_RESET);
+    MCP23S17_Write(IODIRA,0x00);
+    MCP23S17_Write(IODIRB,0x00);
+    HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_SET);
 }
+void Send_data() {
+    HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_RESET);
 
+    // Set both ports to output mode
+    MCP23S17_Write(IODIRA, 0b00000000);  // Set GPIOA pins as outputs
+    MCP23S17_Write(IODIRB, 0b00000000);  // Set GPIOB pins as outputs
+
+    if (pattern_count == 1) {
+        // Set GPIOA0, GPIOA1, GPIOB0, and GPIOB1 to high (1), GPIOA2, GPIOA3, GPIOB2, GPIOB3 to low (0)
+        MCP23S17_Write(GPIOMCPA, 0b11000011);
+        MCP23S17_Write(GPIOMCPB, 0b11000011);
+    }
+    else {
+        // Set all GPIOA and GPIOB pins to low (0)
+        MCP23S17_Write(GPIOMCPA, 0b00000000);
+        MCP23S17_Write(GPIOMCPB, 0b00000000);
+    }
+
+    HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_SET);
+}
