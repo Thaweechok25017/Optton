@@ -1,9 +1,11 @@
-../Core/Src/TT.c:30:6:WaitForStart	16	static
+../Core/Src/TT.c:31:6:WaitForStart	16	static
 ../Core/Src/TT.c:58:6:GeneratePattern	160	static
 ../Core/Src/TT.c:72:6:LED_Status	24	static
 ../Core/Src/TT.c:87:6:TurnOffAllLEDs	16	static
-../Core/Src/TT.c:94:6:ProcessPattern	16	static
-../Core/Src/TT.c:135:9:ReadButton	24	static
-../Core/Src/TT.c:146:6:MCP23S17_Write	16	static
-../Core/Src/TT.c:157:6:MCP23S17_Init	8	static
-../Core/Src/TT.c:163:6:Send_data	8	static
+../Core/Src/TT.c:94:6:ProcessPattern	24	static
+../Core/Src/TT.c:145:9:ReadButton	24	static
+../Core/Src/TT.c:156:6:MCP23S17_Write	16	static
+../Core/Src/TT.c:169:6:MCP23S17_Init	8	static
+../Core/Src/TT.c:176:6:Send_data	8	static
+../Core/Src/TT.c:187:6:Send_dataA	8	static
+../Core/Src/TT.c:192:6:Send_dataB	8	static
