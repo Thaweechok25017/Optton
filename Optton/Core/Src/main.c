@@ -18,9 +18,10 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "TT.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "TT.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -91,17 +92,32 @@ int main(void)
   MX_DMA_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
-
-  WaitForStart();
-
+  MCP23S17_Init();
+  //WaitForStart();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
+	  /*if(HAL_GPIO_ReadPin(GPIOA, OP1_Pin) == 1){
+	        HAL_GPIO_WritePin(GPIOB, LED_on_Pin, GPIO_PIN_SET);
+	        HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin, GPIO_PIN_SET);
+	        HAL_GPIO_WritePin(GPIOC, LED_off_Pin, GPIO_PIN_RESET);
+	        HAL_GPIO_WritePin(GPIOC, LED_offC15_Pin, GPIO_PIN_RESET);
+	  	Send_dataA();
+	  }
+	  else{
+	        HAL_GPIO_WritePin(GPIOB, LED_on_Pin, GPIO_PIN_RESET);
+	        HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin, GPIO_PIN_RESET);
+	        HAL_GPIO_WritePin(GPIOC, LED_off_Pin, GPIO_PIN_SET);
+	        HAL_GPIO_WritePin(GPIOC, LED_offC15_Pin, GPIO_PIN_SET);
+		Send_dataB();
+	  }*/
 	  ProcessPattern();
+
+    /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -162,7 +178,8 @@ static void MX_SPI1_Init(void)
 {
 
   /* USER CODE BEGIN SPI1_Init 0 */
-
+	__HAL_RCC_SPI1_CLK_ENABLE(); // เ�?ิด Clock �?ห�? SPI1
+	__HAL_RCC_GPIOA_CLK_ENABLE();
   /* USER CODE END SPI1_Init 0 */
 
   /* USER CODE BEGIN SPI1_Init 1 */
@@ -171,7 +188,7 @@ static void MX_SPI1_Init(void)
   /* SPI1 parameter configuration*/
   hspi1.Instance = SPI1;
   hspi1.Init.Mode = SPI_MODE_MASTER;
-  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
+  hspi1.Init.Direction = SPI_DIRECTION_1LINE;
   hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
@@ -273,8 +290,8 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
   GPIO_InitStruct.Pin = GPIO_PIN_10 | GPIO_PIN_12;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;     // �?ำห�?ด�?ห�?เ�?�?�? Input
-  GPIO_InitStruct.Pull = GPIO_NOPULL;         // ตั�?�?�?�?าเ�?�?�? Pull-up (ถ�?าต�?อ�?�?าร)
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 /* USER CODE END MX_GPIO_Init_2 */
 }
