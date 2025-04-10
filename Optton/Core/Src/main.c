@@ -1,13 +1,14 @@
 /* USER CODE BEGIN Header */
 
 /*						########## OPTTON ##############
- * in The Main.c Use include Library TT.C To Make Working by OPTTON SENSOR AND DEMO JIG
- *
- * USE FreeRTOS for 2 Task
+ * in The Main.c Use include Library TT.C To Make Working by OPTTON SENSOR AND DEMO JIG and USE FreeRTOS for 2 Task
  *
  * 1. Sensor Module working       #defaultTask#
+ *
  * 2. Send SPI Data 			  #MCP23Task#
  *
+ * *  Created on: Mar 24, 2025
+ *      Author: Thaweechock.M
  * */
 /**
   ******************************************************************************
@@ -55,14 +56,14 @@ DMA_HandleTypeDef hdma_spi1_tx;
 
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
-const osThreadAttr_t defaultTask_attributes = {									// STAR make Task 1
+const osThreadAttr_t defaultTask_attributes = {									// STAR make Task 1 OPTTON
   .name = "defaultTask",
   .priority = (osPriority_t) osPriorityNormal,
   .stack_size = 128 * 4
 };
 /* Definitions for MCP23Task */
 osThreadId_t MCP23TaskHandle;
-const osThreadAttr_t MCP23Task_attributes = {									// STAR make Task 2
+const osThreadAttr_t MCP23Task_attributes = {									// STAR make Task 2 SPI SEND DATA
   .name = "MCP23Task",
   .priority = (osPriority_t) osPriorityNormal,
   .stack_size = 128 * 4
@@ -167,21 +168,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  /*if(HAL_GPIO_ReadPin(GPIOA, OP1_Pin) == 1){
-	        HAL_GPIO_WritePin(GPIOB, LED_on_Pin, GPIO_PIN_SET);
-	        HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin, GPIO_PIN_SET);
-	        HAL_GPIO_WritePin(GPIOC, LED_off_Pin, GPIO_PIN_RESET);
-	        HAL_GPIO_WritePin(GPIOC, LED_offC15_Pin, GPIO_PIN_RESET);
-	  	Send_dataA();
-	  }
-	  else{
-	        HAL_GPIO_WritePin(GPIOB, LED_on_Pin, GPIO_PIN_RESET);
-	        HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin, GPIO_PIN_RESET);
-	        HAL_GPIO_WritePin(GPIOC, LED_off_Pin, GPIO_PIN_SET);
-	        HAL_GPIO_WritePin(GPIOC, LED_offC15_Pin, GPIO_PIN_SET);
-		Send_dataB();
-	  }*/
-	  //ProcessPattern();
 
     /* USER CODE END WHILE */
 

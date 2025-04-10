@@ -10,16 +10,21 @@
  * Main Objectives:
  *
  * 1. Enter setup mode by pressing buttons OP1 and OP3 together for 5 seconds.
+ *
  * 2. Randomly generate a 3-button pattern using OP1, OP2, and OP3.
- * 3. Indicate that pattern using LEDs and wait for the user to input it correctly.
- * 4. If the correct pattern is entered:
- * 4.1 Indicate with LEDs (open state)
- * 4.2 Wait for the same pattern again
- * 4.3 Indicate with LEDs (closed state)
+ *
+ * 3. Indicate that pattern using LEDs and wait for the user to input OP1, OP2, and OP3 it correctly.
+ *
+ * 4. Wait for button input using OP1, OP2, and OP3, with guidance provided via LED indicators.
+ * The system should detect both button press and release events using sensors.
+ *
+ * 	4.1 Indicate with LEDs (open state) and Send SPI To Show LED OPEN JIG
+ * 	4.2 Wait for the same pattern again
+ * 	4.3 Indicate with LEDs (closed state)and Send SPI To Show LED CLOSE JIG
+ *
  * 5. Repeat the above process.
  *
  * */
-
 
 #include "TT.h"
 #include "main.h"
@@ -29,13 +34,8 @@ int pattern[3];   // Holds the 3-step button pattern
 int step, started, round_flag, pattern_count = 0; // Set Keep data for function
 
 #define MCP23S17_ADDR 0x48   // MCP23S17 SPI address
-#define IODIRB  0x00         // MCP register for direction B
-#define IODIRA  0x01         // MCP register for direction A
-#define GPIOMCPB 0x13        // MCP register for reading GPIO B
-#define GPIOMCPA 0x12        // MCP register for reading GPIO A
+#define IODIRB  0x01         // MCP register for direction B
 #define OLATB 0x15           // MCP register for output latch B
-#define OLATA 0x14           // MCP register for output latch A
-#define IOCON 0x0A           // MCP control register
 
 extern SPI_HandleTypeDef hspi1;  // SPI handle used for MCP23S17
 
@@ -176,7 +176,6 @@ void ProcessPattern() {
         TurnOffAllLEDs(1500);
 
         started = 0;
-        WaitForStart();			// Reset process
     } else {
         WaitForStart();			// if started = 0 Not started Reset process
     }
@@ -190,7 +189,7 @@ void ProcessPattern() {
 uint8_t ReadButton(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin) {
     uint32_t start_time = HAL_GetTick();
     while (HAL_GPIO_ReadPin(GPIOx, GPIO_Pin) == GPIO_PIN_SET) {
-        if (HAL_GetTick() - start_time >= 500) {
+        if (HAL_GetTick() - start_time >= 1000) {
             while (HAL_GPIO_ReadPin(GPIOx, GPIO_Pin) == GPIO_PIN_SET);
             return 1;			// Button held for 500 ms
         }
@@ -227,10 +226,8 @@ void MCP23S17_Write(uint8_t reg, uint8_t value) {
 
 void MCP23S17_Init() {
     HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_SET);
-    MCP23S17_Write(IODIRA, 0b11110000);  // Set lower 4 pins of port A to output
     MCP23S17_Write(IODIRB, 0b11110000);  // Set lower 4 pins of port B to output
-    MCP23S17_Write(GPIOMCPA, 0b11111111);  // Init GPIO A state
-    MCP23S17_Write(GPIOMCPB, 0b11111111);  // Init GPIO B state
+	MCP23S17_Write(OLATB, 0b00001111);	// Set All HIGH # LED JIG OFF #
 }
 
 /* "Send_data()"
@@ -240,10 +237,10 @@ void MCP23S17_Init() {
  * Use FreeRTOS To 2 Task Send_data() and ProcessPattern() */
 
 void Send_data(){
-if(pattern_count == 1){
+if(pattern_count == 1 ){
 		Send_dataB();		// If OPEN SEND SPI AND ON JIG LED
 }
-else{
+else if (pattern_count == 0 ){
 		Send_dataA();		// If CLOSE SEND SPI AND OFF JIG LED
 	}
 }
@@ -257,8 +254,7 @@ else{
  */
 
 void Send_dataA() {
-		MCP23S17_Write(OLATB, 0b11111100);		// Turn off bits 0–1
-		MCP23S17_Write(OLATA, 0b11111100);
+		MCP23S17_Write(OLATB, 0b11111100);		// Turn off bits GPIOB 0–1 MCP
     }
 
 /* "Send_dataB()"
@@ -271,7 +267,6 @@ void Send_dataA() {
 
 void Send_dataB(){
 
-		MCP23S17_Write(OLATB, 0b11110011);		// Turn on bits 0–1
-		MCP23S17_Write(OLATA, 0b11110011);
+		MCP23S17_Write(OLATB, 0b11110011);		// Turn on bits GPIOB 2–3 MCP
 
 }
