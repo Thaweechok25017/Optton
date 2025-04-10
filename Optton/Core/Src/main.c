@@ -1,4 +1,15 @@
 /* USER CODE BEGIN Header */
+
+/*						########## OPTTON ##############
+ * in The Main.c Use include Library TT.C To Make Working by OPTTON SENSOR AND DEMO JIG and USE FreeRTOS for 2 Task
+ *
+ * 1. Sensor Module working       #defaultTask#
+ *
+ * 2. Send SPI Data 			  #MCP23Task#
+ *
+ * *  Created on: Mar 24, 2025
+ *      Author: Thaweechock.M
+ * */
 /**
   ******************************************************************************
   * @file           : main.c
@@ -18,6 +29,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -42,6 +54,20 @@
 SPI_HandleTypeDef hspi1;
 DMA_HandleTypeDef hdma_spi1_tx;
 
+/* Definitions for defaultTask */
+osThreadId_t defaultTaskHandle;
+const osThreadAttr_t defaultTask_attributes = {									// STAR make Task 1 OPTTON
+  .name = "defaultTask",
+  .priority = (osPriority_t) osPriorityNormal,
+  .stack_size = 128 * 4
+};
+/* Definitions for MCP23Task */
+osThreadId_t MCP23TaskHandle;
+const osThreadAttr_t MCP23Task_attributes = {									// STAR make Task 2 SPI SEND DATA
+  .name = "MCP23Task",
+  .priority = (osPriority_t) osPriorityNormal,
+  .stack_size = 128 * 4
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -51,6 +77,9 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_SPI1_Init(void);
+void StartDefaultTask(void *argument);
+void StartTask02(void *argument);
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -96,25 +125,49 @@ int main(void)
   //WaitForStart();
   /* USER CODE END 2 */
 
+  /* Init scheduler */
+  osKernelInitialize();
+
+  /* USER CODE BEGIN RTOS_MUTEX */
+  /* add mutexes, ... */
+  /* USER CODE END RTOS_MUTEX */
+
+  /* USER CODE BEGIN RTOS_SEMAPHORES */
+  /* add semaphores, ... */
+  /* USER CODE END RTOS_SEMAPHORES */
+
+  /* USER CODE BEGIN RTOS_TIMERS */
+  /* start timers, add new ones, ... */
+  /* USER CODE END RTOS_TIMERS */
+
+  /* USER CODE BEGIN RTOS_QUEUES */
+  /* add queues, ... */
+  /* USER CODE END RTOS_QUEUES */
+
+  /* Create the thread(s) */
+  /* creation of defaultTask */
+  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+
+  /* creation of MCP23Task */
+  MCP23TaskHandle = osThreadNew(StartTask02, NULL, &MCP23Task_attributes);
+
+  /* USER CODE BEGIN RTOS_THREADS */
+  /* add threads, ... */
+  /* USER CODE END RTOS_THREADS */
+
+  /* USER CODE BEGIN RTOS_EVENTS */
+  /* add events, ... */
+  /* USER CODE END RTOS_EVENTS */
+
+  /* Start scheduler */
+  osKernelStart();
+
+  /* We should never get here as control is now taken by the scheduler */
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  /*if(HAL_GPIO_ReadPin(GPIOA, OP1_Pin) == 1){
-	        HAL_GPIO_WritePin(GPIOB, LED_on_Pin, GPIO_PIN_SET);
-	        HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin, GPIO_PIN_SET);
-	        HAL_GPIO_WritePin(GPIOC, LED_off_Pin, GPIO_PIN_RESET);
-	        HAL_GPIO_WritePin(GPIOC, LED_offC15_Pin, GPIO_PIN_RESET);
-	  	Send_dataA();
-	  }
-	  else{
-	        HAL_GPIO_WritePin(GPIOB, LED_on_Pin, GPIO_PIN_RESET);
-	        HAL_GPIO_WritePin(GPIOB, LED_onB8_Pin, GPIO_PIN_RESET);
-	        HAL_GPIO_WritePin(GPIOC, LED_off_Pin, GPIO_PIN_SET);
-	        HAL_GPIO_WritePin(GPIOC, LED_offC15_Pin, GPIO_PIN_SET);
-		Send_dataB();
-	  }*/
-	  ProcessPattern();
 
     /* USER CODE END WHILE */
 
@@ -221,7 +274,7 @@ static void MX_DMA_Init(void)
 
   /* DMA interrupt init */
   /* DMA1_Channel1_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 3, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
 
 }
@@ -299,6 +352,42 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
+
+/* USER CODE BEGIN Header_StartDefaultTask */
+/**
+  * @brief  Function implementing the defaultTask thread.
+  * @param  argument: Not used
+  * @retval None
+  */
+/* USER CODE END Header_StartDefaultTask */
+void StartDefaultTask(void *argument)								// TASK_1 "SENSOR PATTERN"
+{
+  /* USER CODE BEGIN 5 */
+  /* Infinite loop */
+  for(;;)
+  {
+	ProcessPattern(); 												//#### PATTERN LOOP ####
+  }
+  /* USER CODE END 5 */
+}
+
+/* USER CODE BEGIN Header_StartTask02 */
+/**
+* @brief Function implementing the MCP23Task thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartTask02 */
+void StartTask02(void *argument)									// TASK_2 "MCP data Send"
+{
+  /* USER CODE BEGIN StartTask02 */
+  /* Infinite loop */
+  while(1)
+  {
+	Send_data(); 													//#### SEND Data SPI LOOP ####
+  }
+  /* USER CODE END StartTask02 */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.

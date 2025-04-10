@@ -1,5 +1,0 @@
-../Core/Src/TT.c:15:6:WaitForStart	16	static
-../Core/Src/TT.c:39:6:GeneratePattern	160	static
-../Core/Src/TT.c:53:6:LED_Status	24	static
-../Core/Src/TT.c:66:6:BlinkLED	32	static
-../Core/Src/TT.c:78:9:ReadButton	24	static
